@@ -52,7 +52,7 @@ public class Ball implements Controller{
 		GridNode next = route.pop();
 		gameGrid.moveDroid(ballDroid, next.x, next.y);
 		
-		System.out.println("Ball Coords: (" + ballDroid.x + "," +  ballDroid.y + ")");
-		System.out.println(route);
+		//System.out.println("Ball Coords: (" + ballDroid.x + "," +  ballDroid.y + ")");
+		//System.out.println(route);
 	}
 }

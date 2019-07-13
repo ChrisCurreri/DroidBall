@@ -36,7 +36,7 @@ public class Hunter implements Controller{
 		GridNode next = route.pop();
 		gameGrid.moveDroid(start, next.x, next.y);
 		
-		System.out.println("Hunter Coords: (" + start.x + "," +  start.y + ")");
-		System.out.println(route);
+		//System.out.println("Hunter Coords: (" + start.x + "," +  start.y + ")");
+		//System.out.println(route);
 	}
 }

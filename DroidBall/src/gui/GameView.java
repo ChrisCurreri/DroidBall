@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Color;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,7 +22,10 @@ import map.GridNode;
 public class GameView extends JFrame{
 	
 	private static final long serialVersionUID = 1L;
-	private JPanel gridPanel, headerPanel;
+	private JPanel gridPanel, headerPanel, buttonPanel;
+	
+	public JButton start = new JButton("Start");
+	public JButton stop = new JButton("Stop");
 
 	public GameView(GridNode[][] grid) {
 	
@@ -29,7 +33,8 @@ public class GameView extends JFrame{
 		setLayout(new BorderLayout());
 		
 		add(gridPanel = gridPanel(grid), BorderLayout.CENTER);
-		add(headerPanel = headerPanel("DroidBall- AI Platform",SwingConstants.CENTER), BorderLayout.NORTH);
+		add(headerPanel = headerPanel("DroidBall- AI Platform", SwingConstants.CENTER), BorderLayout.NORTH);
+		add(buttonPanel = buttonPanel(new JButton[]{start, stop}), BorderLayout.SOUTH);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(300,100,1000,800);
@@ -48,6 +53,10 @@ public class GameView extends JFrame{
 	
 	public void updateHeader(String text) {
 		((JLabel) headerPanel.getComponent(0)).setText(text);
+	}
+	
+	public String getHeaderText() {
+		return ((JLabel) headerPanel.getComponent(0)).getText();
 	}
 	
 	
@@ -96,5 +105,14 @@ public class GameView extends JFrame{
 		JPanel headerPanel = new JPanel();
 		headerPanel.add(new JLabel(text,alignment));
 		return headerPanel;
+	}
+	
+	private JPanel buttonPanel(JButton buttons[]) {
+		JPanel buttonPanel = new JPanel(new GridLayout());
+		
+		for(int i=0; i<buttons.length; i++) {
+			buttonPanel.add(buttons[i]);
+		}
+		return buttonPanel;
 	}
 }

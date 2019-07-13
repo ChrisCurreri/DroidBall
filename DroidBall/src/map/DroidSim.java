@@ -1,5 +1,8 @@
 package map;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import controllers.*;
 import gui.GameView;
 
@@ -9,16 +12,22 @@ import gui.GameView;
  * @author Chris Curreri
  */
 
-public class Driver {
+public class DroidSim implements Runnable{
+	private volatile Thread thread = null;
+	
+	private Droid targetDroid, hunterDroid;
+	private Controller ballCon, hunterCon;
+	private Grid2d grid2d;
+	private GameView gameView;
+	
 
-	public static void main(String[] args) {
-		
+	public DroidSim() {
 		// Create the grid
-		Grid2d grid2d = new Grid2d(15, 15);
+		grid2d = new Grid2d(15, 15);
 
 		// Add AI Droids
-		Droid targetDroid = new Droid("(^-^)", 7, 8, Color.BLUE);
-		Droid hunterDroid = new Droid("(o-o)", 7, 12, Color.RED);
+		targetDroid = new Droid("(^-^)", 7, 8, Color.BLUE);
+		hunterDroid = new Droid("(o-o)", 7, 12, Color.RED);
 		
 		grid2d.addDroid(targetDroid); //Add Target to map
 		grid2d.addDroid(hunterDroid); //Add Hunter to map
@@ -53,21 +62,60 @@ public class Driver {
 		grid2d.addDroid(new Droid("[***]",12,13));
 		
 		// Create AI controllers
-		Ball ballCon = new Ball(targetDroid, grid2d);
-		Hunter hunterCon = new Hunter(hunterDroid, targetDroid, grid2d);	
+		ballCon = new Ball(targetDroid, grid2d);
+		hunterCon = new Hunter(hunterDroid, targetDroid, grid2d);	
 
 		// Create GUI
-		GameView gameView = new GameView(grid2d.getGrid());
+		gameView = new GameView(grid2d.getGrid());
 		
-		// Loop until Hunter finds the Target
-		while(hunterDroid.x != targetDroid.x || hunterDroid.y != targetDroid.y){
-				waitForSeconds(1);
-				ballCon.Act();
-				hunterCon.Act();
-		  		gameView.updateGrid(grid2d.getGrid());
-		}
-		gameView.updateHeader("Hunter Wins!!!");
+		gameView.start.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// If the hunter droid did not catch the target droid, 
+				// start the game.
+				if(!(gameView.getHeaderText().equals("Hunter Wins!!!"))) {
+					start();
+				}
+				
+			}
+		});
+		
+		gameView.stop.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				stop();
+			}
+		});
 	}
+	
+	@Override
+	public void run() {
+		// booleans are false by default to prevent  potential null pointer errors
+		// updateHeader to default in case simulation is unpaused
+		boolean isThreadRunning = false;
+		boolean isDroidCaught = false;
+		gameView.updateHeader("DroidBall- AI Platform");
+		
+		// Loop until Hunter finds the Target or the Thread stops
+		do{
+			waitForSeconds(1);
+			ballCon.Act();
+			hunterCon.Act();
+	  		gameView.updateGrid(grid2d.getGrid());
+			
+	  		isThreadRunning = (thread == Thread.currentThread());
+	  		isDroidCaught = (hunterDroid.x == targetDroid.x && hunterDroid.y == targetDroid.y);
+		} while(isThreadRunning && !isDroidCaught);
+		
+		if(isDroidCaught) {
+			gameView.updateHeader("Hunter Wins!!!");
+			stop();
+		}else if(!isThreadRunning) {
+			gameView.updateHeader("Paused");
+		}
+		
+	}
+	
 	
 	/**
 	 * Assistance method for delaying routines
@@ -79,5 +127,17 @@ public class Driver {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	
+	public void start() {
+		if (thread == null) {
+			thread = new Thread(this);
+			thread.start();  // start() already calls run()
+		}
+	}
+	
+	public void stop() {
+		thread = null;
 	}
 }
