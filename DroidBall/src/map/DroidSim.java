@@ -20,7 +20,7 @@ public class DroidSim implements Runnable{
 	private Grid2d grid2d;
 	private GameView gameView;
 	
-
+	
 	public DroidSim() {
 		// Create the grid
 		grid2d = new Grid2d(15, 15);
